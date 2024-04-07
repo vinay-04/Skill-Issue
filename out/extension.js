@@ -45,8 +45,14 @@ function activate(context) {
             if (diagnostics.length > 0 && !hasShownError) {
                 const errors = diagnostics.filter(diagnostic => diagnostic.severity === vscode.DiagnosticSeverity.Error); // Filter errors only
                 if (errors.length > 0) {
+                    const firstError = errors[0]; // Get the first error
+                    const lineNumber = firstError.range.start.line + 1; // Lines start from 0, so add 1
+                    const lineText = await document.lineAt(firstError.range.start.line).text;
+                    const wordStartIndex = Math.max(0, firstError.range.start.character - 1); // Handle word at beginning of line
+                    const wordEndIndex = Math.min(lineText.length, firstError.range.end.character);
+                    const errorWord = lineText.slice(wordStartIndex, wordEndIndex);
                     const insult = await fetchInsult();
-                    await vscode.window.showErrorMessage(`Found ${errors.length} errors. ${insult}`);
+                    await vscode.window.showErrorMessage(`${insult} @${lineNumber} on '${errorWord}'`);
                     hasShownError = true; // Mark error shown
                 }
             }
