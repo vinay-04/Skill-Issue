@@ -15,7 +15,7 @@
     "commands": [
       {
         "command": "skillissue.helloWorld",
-        "title": "Hello World"
+        "title": "Skill Issue"
       }
     ]
   },
