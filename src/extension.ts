@@ -6,6 +6,13 @@ import * as vscode from 'vscode';
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
+	function fetchInsult() {
+		const url = 'https://evilinsult.com/generate_insult.php?lang=en&type=json';
+		return fetch(url)
+		.then(response => response.json())
+		.then((data: any) => data.insult);
+	}
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "skillissue" is now active!');
