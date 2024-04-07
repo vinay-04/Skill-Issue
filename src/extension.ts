@@ -15,6 +15,14 @@ import * as vscode from "vscode";
 export function activate(context: vscode.ExtensionContext) {
   console.log("Extension activated");
 
+
+	function fetchInsult() {
+		const url = 'https://evilinsult.com/generate_insult.php?lang=en&type=json';
+		return fetch(url)
+		.then(response => response.json())
+		.then((data: any) => data.insult);
+	}
+
   const provider = new CustomSidebarViewProvider(context.extensionUri);
 
   context.subscriptions.push(
