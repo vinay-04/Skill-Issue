@@ -1,7 +1,7 @@
 {
   "name": "skillissue",
-  "displayName": "skillIssue",
-  "description": "got a problem? skill issue!",
+  "displayName": "SkillIssue",
+  "description": "Motivating people to code...",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.88.0"
