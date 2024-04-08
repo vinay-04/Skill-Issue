@@ -23,13 +23,53 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deactivate = exports.activate = void 0;
+exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 let intervalId; // Declare intervalId as a global variable
 let hasShownError = false; // Flag to track if error has been shown
+const languages = {
+    "Arabic": "ar",
+    "Azerbaijani": "az",
+    "Bengali": "bn",
+    "Czech": "cs",
+    "German": "de",
+    "Greek": "el",
+    "English": "en",
+    "Spanish": "es",
+    "French": "fr",
+    "Hindi": "hi",
+    "Hebrew": "he",
+    "Indonesian": "id",
+    "Italian": "it",
+    "Japanese": "ja",
+    "Korean": "ko",
+    "Latin": "la",
+    "Marathi": "mr",
+    "Polish": "pl",
+    "Portuguese": "pt",
+    "Romanian": "ro",
+    "Russian": "ru",
+    "Swahili": "sw",
+    "Tamil": "ta",
+    "Tegulu": "te",
+    "Turkish": "tr",
+    "Urdu": "ur",
+    "Vietnamese": "vi"
+};
 function activate(context) {
-    async function fetchInsult() {
-        const url = 'https://evilinsult.com/generate_insult.php?lang=en&type=json';
+    let langSelect = vscode.commands.registerCommand('skillissue.selectLanguage', async () => {
+        const options = Object.keys(languages);
+        const selectedLanguage = await vscode.window.showQuickPick(options, {
+            placeHolder: 'SkillIssue: Select a language',
+        });
+        if (selectedLanguage) {
+            const languageCode = languages[selectedLanguage];
+            vscode.window.showInformationMessage(`You selected: ${selectedLanguage}`);
+            context.globalState.update('selectedLanguage', languageCode);
+        }
+    });
+    async function fetchInsult(lang) {
+        const url = `https://evilinsult.com/generate_insult.php?lang=${lang}&type=json`;
         return fetch(url)
             .then(response => response.json())
             .then((data) => data.insult);
@@ -43,18 +83,20 @@ function activate(context) {
             const document = activeTextEditor.document;
             const diagnostics = await vscode.languages.getDiagnostics(document.uri);
             if (diagnostics.length > 0 && !hasShownError) {
-                const errors = diagnostics.filter(diagnostic => diagnostic.severity === vscode.DiagnosticSeverity.Error); // Filter errors only
+                const errors = diagnostics.filter(diagnostic => diagnostic.severity === vscode.DiagnosticSeverity.Error);
                 if (errors.length > 0) {
-                    const firstError = errors[0]; // Get the first error
-                    const lineNumber = firstError.range.start.line + 1; // Lines start from 0, so add 1
+                    const firstError = errors[0];
+                    const lineNumber = firstError.range.start.line + 1;
                     const lineText = await document.lineAt(firstError.range.start.line).text;
-                    const wordStartIndex = Math.max(0, firstError.range.start.character - 1); // Handle word at beginning of line
+                    const wordStartIndex = Math.max(0, firstError.range.start.character - 1);
                     const wordEndIndex = Math.min(lineText.length, firstError.range.end.character);
                     const errorWord = lineText.slice(wordStartIndex, wordEndIndex);
-                    const insult = await fetchInsult();
-                    await vscode.window.showErrorMessage(`${insult} @${lineNumber} on '${errorWord}'`);
-                    hasShownError = true; // Mark error shown
+                    const lang = context.globalState.get('selectedLanguage') || 'en';
+                    const insult = await fetchInsult(lang.toString());
+                    await vscode.window.showErrorMessage(`${insult}`);
+                    hasShownError = true;
                 }
+                // 
             }
         }
         catch (error) {
@@ -63,17 +105,10 @@ function activate(context) {
     }
     console.log('Congratulations, your extension "skillissue" is now active!');
     intervalId = setInterval(checkForErrors, 3000);
-    // Register a command (optional)
     context.subscriptions.push(vscode.commands.registerCommand('skillissue.helloWorld', async () => {
         hasShownError = false;
-        intervalId = setInterval(checkForErrors, 3000); // Restart interval if needed
+        intervalId = setInterval(checkForErrors, 8000);
     }));
-    // const interval = { dispose: () => clearInterval(intervalId) }; // Wrap intervalId in an object with a dispose method
-    // context.subscriptions.push(interval); // Ensure interval is cleaned up on deactivation
 }
 exports.activate = activate;
-function deactivate() {
-    // clearInterval(interval); // Clear the interval on deactivation
-}
-exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

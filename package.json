@@ -16,8 +16,11 @@
       {
         "command": "skillissue.helloWorld",
         "title": "Skill Issue"
-      }
-    ]
+      },
+      {
+        "command": "skillissue.selectLanguage",
+        "title": "Skill Issue: Select Language"
+      }]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
