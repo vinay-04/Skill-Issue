@@ -65,6 +65,7 @@ function activate(context) {
         if (selectedLanguage) {
             const languageCode = languages[selectedLanguage];
             vscode.window.showInformationMessage(`You selected: ${selectedLanguage}`);
+            vscode.window.showInformationMessage(`Call Skill Issue Function`);
             context.globalState.update('selectedLanguage', languageCode);
         }
     });
@@ -107,7 +108,11 @@ function activate(context) {
     intervalId = setInterval(checkForErrors, 3000);
     context.subscriptions.push(vscode.commands.registerCommand('skillissue.helloWorld', async () => {
         hasShownError = false;
-        intervalId = setInterval(checkForErrors, 8000);
+        // intervalId = setInterval(checkForErrors, 8000);
+        vscode.workspace.onDidSaveTextDocument(checkForErrors);
+        const state = vscode.window.terminals;
+        console.log('Terminals: ', state);
+        vscode.window.showInformationMessage(`Hello World from SkillIssue! ${state}`);
     }));
 }
 exports.activate = activate;

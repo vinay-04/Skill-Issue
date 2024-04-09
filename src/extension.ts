@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
-let intervalId: NodeJS.Timer; // Declare intervalId as a global variable
-let hasShownError = false; // Flag to track if error has been shown
+let hasShownError = false; 
 const languages = {
   "Arabic" : "ar",
   "Azerbaijani" : "az",
@@ -43,6 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
     if (selectedLanguage) {
       const languageCode = languages[selectedLanguage as keyof typeof languages]; 
       vscode.window.showInformationMessage(`You selected: ${selectedLanguage}`);
+      vscode.window.showInformationMessage(`Call Skill Issue Function`);
+
       context.globalState.update('selectedLanguage', languageCode);
     }
   });
@@ -63,14 +64,14 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const document = activeTextEditor.document;
-      const diagnostics = await vscode.languages.getDiagnostics(document.uri);
+      const diagnostics = vscode.languages.getDiagnostics(document.uri);
 
       if (diagnostics.length > 0 && !hasShownError) {
         const errors = diagnostics.filter(diagnostic => diagnostic.severity === vscode.DiagnosticSeverity.Error);
         if (errors.length > 0) {
           const firstError = errors[0];
           const lineNumber = firstError.range.start.line + 1; 
-          const lineText = await document.lineAt(firstError.range.start.line).text;
+          const lineText = document.lineAt(firstError.range.start.line).text;
           const wordStartIndex = Math.max(0, firstError.range.start.character - 1); 
           const wordEndIndex = Math.min(lineText.length, firstError.range.end.character);
           const errorWord = lineText.slice(wordStartIndex, wordEndIndex);
@@ -79,20 +80,26 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.window.showErrorMessage(`${insult}`);
           hasShownError = true; 
         }
+        
           // 
       }
      } catch (error) {
       console.error('Error checking for errors:', error);
     }
+
   }
 
   console.log('Congratulations, your extension "skillissue" is now active!');
-  intervalId = setInterval(checkForErrors, 3000);
+  
   
   context.subscriptions.push(
     vscode.commands.registerCommand('skillissue.helloWorld', async () => {
       hasShownError = false;
-      intervalId = setInterval(checkForErrors, 8000);
+      // intervalId = setInterval(checkForErrors, 8000);
+      vscode.workspace.onDidSaveTextDocument(checkForErrors);
+      // const state = vscode.window.terminals;
+      // console.log('Terminals: ', state);  
+      // vscode.window.showInformationMessage(`Hello World from SkillIssue! ${state}`);
     })
   );
 }
