@@ -42,8 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
     if (selectedLanguage) {
       const languageCode = languages[selectedLanguage as keyof typeof languages]; 
       vscode.window.showInformationMessage(`You selected: ${selectedLanguage}`);
-      vscode.window.showInformationMessage(`Call Skill Issue Function`);
-
       context.globalState.update('selectedLanguage', languageCode);
     }
   });
@@ -68,13 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (diagnostics.length > 0 && !hasShownError) {
         const errors = diagnostics.filter(diagnostic => diagnostic.severity === vscode.DiagnosticSeverity.Error);
-        if (errors.length > 0) {
-          const firstError = errors[0];
-          const lineNumber = firstError.range.start.line + 1; 
-          const lineText = document.lineAt(firstError.range.start.line).text;
-          const wordStartIndex = Math.max(0, firstError.range.start.character - 1); 
-          const wordEndIndex = Math.min(lineText.length, firstError.range.end.character);
-          const errorWord = lineText.slice(wordStartIndex, wordEndIndex);
+        if (errors) {
           const lang = context.globalState.get('selectedLanguage') || 'en';
           const insult = await fetchInsult(lang.toString());
           await vscode.window.showErrorMessage(`${insult}`);
